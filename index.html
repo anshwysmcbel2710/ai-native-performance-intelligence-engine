@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI System Performance Impact | Bits &amp; Brains AI</title>
+<meta name="description" content="10x speed, 65–85% cost reduction, infinite scalability with AI-native systems.">
+<meta property="og:title" content="AI System Performance Impact | Bits & Brains AI">
+<meta property="og:description" content="Real Systems. Real Impact. 10x speed, 65–85% cost reduction, infinite scalability.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AI System Performance Impact | Bits & Brains AI">
+<meta name="twitter:description" content="10x speed, 65–85% cost reduction, infinite scalability with AI-native systems.">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Organization","name":"Bits & Brains AI","description":"AI Infrastructure Company delivering 10x speed, 65–85% cost reduction, and infinite scalability.","url":"https://bitsandbrains.ai","sameAs":[],"hasOfferCatalog":{"@type":"OfferCatalog","name":"AI Infrastructure Services","itemListElement":[{"@type":"Offer","itemOffered":{"@type":"Service","name":"AI-Native System Infrastructure","description":"10x faster delivery, 65–85% cost reduction, infinite scalability"}}]}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080706;
+  --gold:#FF9500;
+  --accent:#D4A843;
+  --grey:#6B6B6B;
+  --text:#F5EFE6;
+  --dim:#9B8E7E;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:'Inter',sans-serif;color:var(--text);cursor:none}
+
+#stage{position:fixed;inset:0;background:var(--bg);overflow:hidden}
+
+/* Canvases */
+#bgCanvas{position:absolute;inset:0;z-index:0}
+#fxCanvas{position:absolute;inset:0;z-index:1;pointer-events:none}
+
+/* Grain overlay */
+#grain{position:absolute;inset:0;z-index:50;opacity:.028;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size:200px 200px;animation:grainShift 0.15s steps(1) infinite}
+@keyframes grainShift{0%{background-position:0 0}20%{background-position:-40px -20px}40%{background-position:30px 50px}60%{background-position:-60px 10px}80%{background-position:20px -40px}100%{background-position:0 0}}
+
+/* UI Layer */
+#ui{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center}
+
+/* Custom cursor */
+#cursor{position:fixed;width:10px;height:10px;border-radius:50%;background:var(--gold);z-index:9999;pointer-events:none;transform:translate(-50%,-50%);transition:width 0.2s,height 0.2s,opacity 0.2s;mix-blend-mode:screen;box-shadow:0 0 18px 4px rgba(255,149,0,0.5)}
+#cursorRing{position:fixed;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,149,0,0.35);z-index:9998;pointer-events:none;transform:translate(-50%,-50%);transition:all 0.08s ease-out}
+
+/* HEADER */
+#header{position:absolute;top:0;left:0;right:0;padding:32px 48px;display:flex;align-items:center;justify-content:space-between;z-index:20;opacity:0}
+.logo-text{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.3em;color:var(--accent);text-transform:uppercase}
+.sys-id{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;color:var(--grey);opacity:0.6}
+
+/* SYSTEM INIT */
+#initScreen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:15;opacity:0}
+.init-tagline{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,3.5vw,52px);font-weight:300;letter-spacing:0.35em;color:var(--text);text-transform:uppercase;text-align:center;line-height:1.2}
+.init-sub{margin-top:20px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.4em;color:var(--gold);opacity:0.8}
+.init-rule{width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:24px auto}
+
+/* METRICS STAGE */
+#metricsStage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:12;opacity:0;padding:100px 6vw 80px}
+
+.panel{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;position:relative;padding:0 2vw;opacity:0}
+.panel-divider{width:1px;height:60%;background:linear-gradient(180deg,transparent,rgba(212,168,67,0.15),transparent);align-self:center}
+
+.metric-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.45em;color:var(--gold);text-transform:uppercase;margin-bottom:16px;opacity:0}
+.metric-big{font-family:'Cormorant Garamond',serif;font-size:clamp(64px,9vw,130px);font-weight:300;line-height:1;color:var(--text);letter-spacing:-0.02em;position:relative;opacity:0}
+.metric-big .unit{font-size:0.5em;color:var(--gold);font-weight:300}
+.metric-big.glow{text-shadow:0 0 60px rgba(255,149,0,0.4),0 0 120px rgba(255,149,0,0.15)}
+.metric-name{font-family:'Cormorant Garamond',serif;font-size:clamp(16px,2vw,24px);font-weight:300;letter-spacing:0.25em;color:var(--accent);text-transform:uppercase;margin-top:8px;opacity:0}
+.metric-sub{font-family:'Inter',sans-serif;font-size:11px;font-weight:200;letter-spacing:0.15em;color:var(--dim);margin-top:14px;text-align:center;line-height:1.7;max-width:220px;opacity:0}
+
+.chart-wrap{width:100%;max-width:280px;height:90px;margin-top:22px;position:relative;opacity:0}
+canvas.chart{width:100%;height:100%}
+
+/* COMPARISON STRIP */
+#compStrip{position:absolute;bottom:0;left:0;right:0;padding:0 8vw 28px;z-index:14;opacity:0}
+.strip-row{display:flex;align-items:center;margin-bottom:12px;gap:16px}
+.strip-label{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.3em;color:var(--grey);text-transform:uppercase;width:130px;flex-shrink:0}
+.strip-track{flex:1;height:2px;background:rgba(107,107,107,0.2);border-radius:2px;position:relative;overflow:hidden}
+.strip-bar-grey{position:absolute;left:0;top:0;height:100%;background:var(--grey);border-radius:2px;width:0;opacity:0.5}
+.strip-bar-gold{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));border-radius:2px;width:0;box-shadow:0 0 8px rgba(255,149,0,0.6)}
+.strip-tag{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.2em;color:var(--gold);width:100px;flex-shrink:0;text-align:right;opacity:0}
+.strip-header{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.5em;color:var(--grey);text-transform:uppercase;margin-bottom:16px;opacity:0.4;display:flex;justify-content:space-between}
+
+/* FINAL MESSAGE */
+#finalMsg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:16;opacity:0;text-align:center;padding:0 10vw}
+.final-line1{font-family:'Cormorant Garamond',serif;font-size:clamp(20px,2.5vw,34px);font-weight:300;letter-spacing:0.08em;color:var(--text);line-height:1.5;opacity:0}
+.final-line2{font-family:'Cormorant Garamond',serif;font-size:clamp(20px,2.5vw,34px);font-weight:300;letter-spacing:0.08em;color:var(--text);line-height:1.5;margin-top:8px;opacity:0}
+.final-rule{width:1px;height:60px;background:linear-gradient(180deg,transparent,var(--gold),transparent);margin:32px auto;opacity:0}
+
+/* BRAND LOCK */
+#brandLock{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:17;opacity:0;display:flex;flex-direction:column;align-items:center}
+.brand-tagline{font-family:'Cormorant Garamond',serif;font-size:clamp(13px,1.4vw,20px);font-weight:300;letter-spacing:0.5em;color:var(--dim);text-transform:uppercase;margin-bottom:36px}
+.brand-rule{width:60px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin-bottom:28px}
+.brand-name{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,3vw,42px);font-weight:300;letter-spacing:0.55em;color:var(--text);text-transform:uppercase}
+.brand-sub{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.55em;color:var(--gold);text-transform:uppercase;margin-top:12px;opacity:0.75}
+.brand-glow{position:absolute;inset:-60px -120px;background:radial-gradient(ellipse,rgba(255,149,0,0.07) 0%,transparent 70%);pointer-events:none}
+
+/* Infinity symbol styling */
+.infinity-symbol{font-size:clamp(72px,10vw,140px);line-height:1;color:var(--text);font-family:'Cormorant Garamond',serif;font-weight:300}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important}
+}
+</style>
+</head>
+<body>
+<div id="stage" role="main" aria-label="Bits & Brains AI – System Performance Cinematic">
+
+  <div id="cursor" aria-hidden="true"></div>
+  <div id="cursorRing" aria-hidden="true"></div>
+
+  <canvas id="bgCanvas" aria-hidden="true"></canvas>
+  <canvas id="fxCanvas" aria-hidden="true"></canvas>
+  <div id="grain" aria-hidden="true"></div>
+
+  <header id="header" aria-label="Bits & Brains AI Navigation">
+    <span class="logo-text">Bits &amp; Brains AI</span>
+    <span class="sys-id">SYS.PERF.v4.2 // LIVE</span>
+  </header>
+
+  <!-- INIT SCREEN -->
+  <section id="initScreen" aria-label="System Initialization">
+    <div class="init-tagline">Real Systems.<br>Real Impact.</div>
+    <div class="init-rule"></div>
+    <div class="init-sub">AI-NATIVE INFRASTRUCTURE // PERFORMANCE ANALYSIS</div>
+  </section>
+
+  <!-- METRICS STAGE -->
+  <section id="metricsStage" aria-label="Performance Metrics">
+    <!-- LEFT: SPEED -->
+    <div class="panel" id="panelSpeed" aria-label="Speed Metric">
+      <div class="metric-label" id="lbl1">Processing Speed</div>
+      <div class="metric-big" id="metSpeed"><span id="cntSpeed">1</span><span class="unit">×</span></div>
+      <div class="metric-name" id="nm1">SPEED</div>
+      <div class="metric-sub" id="sub1">Automate. Accelerate.<br>Deliver 10× faster.</div>
+      <div class="chart-wrap" id="cw1"><canvas class="chart" id="speedChart" aria-label="Speed comparison chart"></canvas></div>
+    </div>
+
+    <div class="panel-divider" id="div1"></div>
+
+    <!-- CENTER: COST -->
+    <div class="panel" id="panelCost" aria-label="Cost Reduction Metric">
+      <div class="metric-label" id="lbl2">Operational Cost</div>
+      <div class="metric-big" id="metCost">↓<span id="cntCost">0</span><span class="unit">%</span></div>
+      <div class="metric-name" id="nm2">COST REDUCTION</div>
+      <div class="metric-sub" id="sub2">Eliminate inefficiencies.<br>Reduce costs dramatically.</div>
+      <div class="chart-wrap" id="cw2"><canvas class="chart" id="costChart" aria-label="Cost reduction chart"></canvas></div>
+    </div>
+
+    <div class="panel-divider" id="div2"></div>
+
+    <!-- RIGHT: SCALE -->
+    <div class="panel" id="panelScale" aria-label="Scalability Metric">
+      <div class="metric-label" id="lbl3">Capacity Ceiling</div>
+      <div class="metric-big" id="metScale"><span class="infinity-symbol">∞</span></div>
+      <div class="metric-name" id="nm3">SCALABILITY</div>
+      <div class="metric-sub" id="sub3">Scale without limits.<br>Built for the future.</div>
+      <div class="chart-wrap" id="cw4"><canvas class="chart" id="scaleChart" aria-label="Scalability comparison chart"></canvas></div>
+    </div>
+  </section>
+
+  <!-- COMPARISON STRIP -->
+  <div id="compStrip" aria-label="Performance Comparison">
+    <div class="strip-header"><span>METRIC</span><span>TRADITIONAL → AI-NATIVE</span><span>ADVANTAGE</span></div>
+    <div class="strip-row">
+      <span class="strip-label">Time to Market</span>
+      <div class="strip-track"><div class="strip-bar-grey" id="sg1"></div><div class="strip-bar-gold" id="gg1"></div></div>
+      <span class="strip-tag" id="st1">10× faster</span>
+    </div>
+    <div class="strip-row">
+      <span class="strip-label">Operational Cost</span>
+      <div class="strip-track"><div class="strip-bar-grey" id="sg2"></div><div class="strip-bar-gold" id="gg2"></div></div>
+      <span class="strip-tag" id="st2">65–85% lower</span>
+    </div>
+    <div class="strip-row">
+      <span class="strip-label">Scalability</span>
+      <div class="strip-track"><div class="strip-bar-grey" id="sg3"></div><div class="strip-bar-gold" id="gg3"></div></div>
+      <span class="strip-tag" id="st3">Infinite scale</span>
+    </div>
+  </div>
+
+  <!-- FINAL MESSAGE -->
+  <section id="finalMsg" aria-label="Conclusion">
+    <div class="final-line1" id="fl1">"AI-native systems don't just improve performance."</div>
+    <div class="final-line2" id="fl2">"They transform what's possible."</div>
+    <div class="final-rule" id="fr"></div>
+  </section>
+
+  <!-- BRAND LOCK -->
+  <footer id="brandLock" aria-label="Brand Identity">
+    <div class="brand-glow"></div>
+    <div class="brand-tagline">Real Systems. Real Impact.</div>
+    <div class="brand-rule"></div>
+    <div class="brand-name">Bits &amp; Brains AI</div>
+    <div class="brand-sub">AI Infrastructure Company</div>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+
+// ─── STATE ────────────────────────────────────────────────
+const W = window.innerWidth, H = window.innerHeight;
+let mouseX = W/2, mouseY = H/2;
+let raf, startTime = null;
+let cursorX = W/2, cursorY = H/2, ringX = W/2, ringY = H/2;
+
+// ─── CANVAS SETUP ─────────────────────────────────────────
+const bgCanvas = document.getElementById('bgCanvas');
+const bgCtx = bgCanvas.getContext('2d');
+const fxCanvas = document.getElementById('fxCanvas');
+const fxCtx = fxCanvas.getContext('2d');
+
+function resizeCanvases(){
+  bgCanvas.width = fxCanvas.width = window.innerWidth;
+  bgCanvas.height = fxCanvas.height = window.innerHeight;
+}
+resizeCanvases();
+
+// ─── EASING ───────────────────────────────────────────────
+const ease = {
+  out3: t => 1 - Math.pow(1-t,3),
+  out5: t => 1 - Math.pow(1-t,5),
+  in3:  t => t*t*t,
+  inOut: t => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2,
+  spring: t => { const c=4*Math.PI/3; return t===0?0:t===1?1:Math.pow(2,-10*t)*Math.sin((t*10-0.75)*c)+1 }
+};
+
+// ─── TIMELINE ─────────────────────────────────────────────
+// Each entry: [startSec, endSec, fn(progress 0→1, elapsed)]
+const timeline = [];
+
+function addTween(start, end, fn){
+  timeline.push({start, end, fn, done: false});
+}
+
+function tick(ts){
+  if(!startTime) startTime = ts;
+  const elapsed = (ts - startTime) / 1000; // seconds
+
+  raf = requestAnimationFrame(tick);
+
+  const W = bgCanvas.width, H = bgCanvas.height;
+
+  // BG canvas – clear + grid + particles
+  drawBackground(bgCtx, W, H, elapsed);
+
+  // FX canvas
+  fxCtx.clearRect(0, 0, W, H);
+
+  // Run timeline
+  for(const tw of timeline){
+    if(elapsed >= tw.start && elapsed <= tw.end + 0.05){
+      const t = Math.min((elapsed - tw.start)/(tw.end - tw.start), 1);
+      tw.fn(t, elapsed);
+    }
+  }
+
+  // Smooth cursor
+  ringX += (cursorX - ringX) * 0.08;
+  ringY += (cursorY - ringY) * 0.08;
+  const ring = document.getElementById('cursorRing');
+  ring.style.left = ringX + 'px';
+  ring.style.top  = ringY + 'px';
+}
+
+// ─── PARTICLES ────────────────────────────────────────────
+const particles = Array.from({length: 90}, () => ({
+  x: Math.random() * 2000,
+  y: Math.random() * 1080,
+  vx: (Math.random()-0.5)*0.18,
+  vy: -Math.random()*0.25 - 0.05,
+  r: Math.random()*1.2 + 0.3,
+  alpha: Math.random()*0.4 + 0.05,
+  pulse: Math.random()*Math.PI*2
+}));
+
+const gridLines = { h: 12, v: 18 };
+
+function drawBackground(ctx, W, H, t){
+  ctx.fillStyle = '#080706';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(212,168,67,0.035)';
+  ctx.lineWidth = 1;
+  for(let i=0;i<=gridLines.h;i++){
+    ctx.beginPath();
+    ctx.moveTo(0, (i/gridLines.h)*H);
+    ctx.lineTo(W, (i/gridLines.h)*H);
+    ctx.stroke();
+  }
+  for(let j=0;j<=gridLines.v;j++){
+    ctx.beginPath();
+    ctx.moveTo((j/gridLines.v)*W, 0);
+    ctx.lineTo((j/gridLines.v)*W, H);
+    ctx.stroke();
+  }
+
+  // Ambient glow center
+  const gx = W/2 + (mouseX - W/2)*0.04;
+  const gy = H/2 + (mouseY - H/2)*0.04;
+  const gr = ctx.createRadialGradient(gx, gy, 0, gx, gy, W*0.6);
+  gr.addColorStop(0, 'rgba(255,149,0,0.025)');
+  gr.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = gr;
+  ctx.fillRect(0, 0, W, H);
+
+  // Particles
+  for(const p of particles){
+    p.x += p.vx + (mouseX - W/2)*0.00008;
+    p.y += p.vy;
+    p.pulse += 0.02;
+    if(p.y < -5) p.y = H + 5;
+    if(p.x < -5) p.x = W + 5;
+    if(p.x > W+5) p.x = -5;
+    const a = p.alpha * (0.7 + 0.3*Math.sin(p.pulse));
+    ctx.beginPath();
+    ctx.arc(p.x/2000*W, p.y/1080*H, p.r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(212,168,67,${a})`;
+    ctx.fill();
+  }
+}
+
+// ─── HELPERS ──────────────────────────────────────────────
+function setEl(id, props){
+  const el = document.getElementById(id);
+  if(!el) return;
+  for(const [k,v] of Object.entries(props)){
+    if(k === 'opacity') el.style.opacity = v;
+    else if(k === 'transform') el.style.transform = v;
+    else if(k === 'style') el.setAttribute('style', v);
+    else el.style[k] = v;
+  }
+}
+
+// ─── CHART RENDERERS ──────────────────────────────────────
+function drawSpeedChart(progress){
+  const c = document.getElementById('speedChart');
+  if(!c) return;
+  const W=c.offsetWidth, H=c.offsetHeight;
+  c.width=W*devicePixelRatio; c.height=H*devicePixelRatio;
+  const ctx=c.getContext('2d'); ctx.scale(devicePixelRatio,devicePixelRatio);
+  const pts = progress;
+
+  // Grey line: traditional - slow linear
+  ctx.beginPath();
+  for(let i=0;i<=50*pts;i++){
+    const x=(i/50)*W, y=H - (i/50)*H*0.3 - H*0.05;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle='rgba(107,107,107,0.5)'; ctx.lineWidth=1.5; ctx.stroke();
+
+  // Gold line: AI - exponential
+  ctx.beginPath();
+  for(let i=0;i<=50*pts;i++){
+    const r=i/50;
+    const x=r*W;
+    const y=H - Math.pow(r,0.5)*H*0.88 - H*0.05;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  const lg=ctx.createLinearGradient(0,0,W,0);
+  lg.addColorStop(0,'rgba(212,168,67,0.4)'); lg.addColorStop(1,'rgba(255,149,0,1)');
+  ctx.strokeStyle=lg; ctx.lineWidth=2;
+  ctx.shadowColor='rgba(255,149,0,0.7)'; ctx.shadowBlur=8;
+  ctx.stroke(); ctx.shadowBlur=0;
+
+  // Glow dot at tip
+  if(pts > 0.9){
+    const r2=pts; const x=r2*W; const y=H - Math.pow(r2,0.5)*H*0.88 - H*0.05;
+    const radGrad=ctx.createRadialGradient(x,y,0,x,y,12);
+    radGrad.addColorStop(0,'rgba(255,149,0,0.9)'); radGrad.addColorStop(1,'rgba(255,149,0,0)');
+    ctx.beginPath(); ctx.arc(x,y,12,0,Math.PI*2);
+    ctx.fillStyle=radGrad; ctx.fill();
+  }
+  // Labels
+  ctx.font=`${7*devicePixelRatio/devicePixelRatio}px JetBrains Mono`;
+  ctx.fillStyle='rgba(107,107,107,0.6)'; ctx.fillText('TRADITIONAL',4,H-6);
+  ctx.fillStyle='rgba(255,149,0,0.8)'; ctx.fillText('AI-NATIVE',W*0.55,10);
+}
+
+function drawCostChart(progress){
+  const c=document.getElementById('costChart');
+  if(!c) return;
+  const W=c.offsetWidth, H=c.offsetHeight;
+  c.width=W*devicePixelRatio; c.height=H*devicePixelRatio;
+  const ctx=c.getContext('2d'); ctx.scale(devicePixelRatio,devicePixelRatio);
+  const barW = W/6;
+  const p = progress;
+
+  // Grey bar (before)
+  const greyH = H*0.85;
+  ctx.fillStyle='rgba(107,107,107,0.3)';
+  ctx.fillRect(W*0.1, H-greyH*p, barW, greyH*p);
+  ctx.fillStyle='rgba(107,107,107,0.6)';
+  ctx.fillRect(W*0.1, H-greyH*p-2, barW, 2);
+
+  // Gold bar (after) - much smaller
+  const goldH = H*0.12;
+  ctx.fillStyle='rgba(212,168,67,0.25)';
+  ctx.fillRect(W*0.55, H-goldH*p, barW, goldH*p);
+  const lg=ctx.createLinearGradient(0,H-goldH*p,0,H);
+  lg.addColorStop(0,'rgba(255,149,0,1)'); lg.addColorStop(1,'rgba(212,168,67,0.4)');
+  ctx.fillStyle=lg;
+  ctx.fillRect(W*0.55, H-goldH*p, barW, goldH*p);
+  if(p>0.05){ctx.shadowColor='rgba(255,149,0,0.6)'; ctx.shadowBlur=6;}
+  ctx.fillStyle='rgba(255,149,0,0.9)'; ctx.fillRect(W*0.55,H-goldH*p-2,barW,2);
+  ctx.shadowBlur=0;
+
+  ctx.font=`7px JetBrains Mono`;
+  ctx.fillStyle='rgba(107,107,107,0.7)'; ctx.fillText('BEFORE',W*0.08,H-2);
+  if(p>0.3){ctx.fillStyle='rgba(255,149,0,0.9)'; ctx.fillText('AFTER',W*0.5,H-2);}
+
+  // Downward arrow
+  if(p>0.6){
+    const ap=ease.out3((p-0.6)/0.4);
+    ctx.strokeStyle=`rgba(255,149,0,${ap})`;
+    ctx.lineWidth=1.5;
+    ctx.shadowColor='rgba(255,149,0,0.5)'; ctx.shadowBlur=4;
+    ctx.beginPath();
+    ctx.moveTo(W*0.35, H*0.15);
+    ctx.lineTo(W*0.35, H*0.15 + H*0.55*ap);
+    ctx.stroke();
+    ctx.beginPath();
+    const tip=H*0.15+H*0.55*ap;
+    ctx.moveTo(W*0.35-6,tip-10); ctx.lineTo(W*0.35,tip); ctx.lineTo(W*0.35+6,tip-10);
+    ctx.stroke(); ctx.shadowBlur=0;
+  }
+}
+
+function drawScaleChart(progress){
+  const c=document.getElementById('scaleChart');
+  if(!c) return;
+  const W=c.offsetWidth, H=c.offsetHeight;
+  c.width=W*devicePixelRatio; c.height=H*devicePixelRatio;
+  const ctx=c.getContext('2d'); ctx.scale(devicePixelRatio,devicePixelRatio);
+  const p=progress;
+
+  // Traditional: flat
+  ctx.beginPath();
+  for(let i=0;i<=50*p;i++){
+    const x=(i/50)*W, y=H*0.75;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle='rgba(107,107,107,0.5)'; ctx.lineWidth=1.5; ctx.stroke();
+
+  // AI-native: exponential
+  ctx.beginPath();
+  for(let i=0;i<=50*p;i++){
+    const r=i/50; const x=r*W;
+    const y=H - Math.pow(r,2.5)*H*0.88 - H*0.05;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  const lg=ctx.createLinearGradient(0,0,W,0);
+  lg.addColorStop(0,'rgba(212,168,67,0.3)'); lg.addColorStop(1,'rgba(255,149,0,1)');
+  ctx.strokeStyle=lg; ctx.lineWidth=2.5;
+  ctx.shadowColor='rgba(255,149,0,0.8)'; ctx.shadowBlur=10;
+  ctx.stroke(); ctx.shadowBlur=0;
+
+  // Particles flowing up
+  if(p>0.5){
+    for(let k=0;k<6;k++){
+      const f=(Date.now()/1000*0.8+k*0.3)%1;
+      const x=W*0.7+k*8;
+      const y=H - f*H*0.7;
+      const a=Math.sin(f*Math.PI)*0.8*(p-0.5)*2;
+      ctx.beginPath(); ctx.arc(x,y,2,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,149,0,${a})`; ctx.fill();
+    }
+  }
+
+  ctx.font=`7px JetBrains Mono`;
+  ctx.fillStyle='rgba(107,107,107,0.6)'; ctx.fillText('TRADITIONAL',4,H*0.72-3);
+  ctx.fillStyle='rgba(255,149,0,0.8)'; ctx.fillText('AI-NATIVE',W*0.5,10);
+}
+
+// ─── COUNTER ENGINE ────────────────────────────────────────
+function countUp(elId, from, to, t){
+  const val = Math.round(from + (to-from)*ease.out3(Math.min(t,1)));
+  const el = document.getElementById(elId);
+  if(el) el.textContent = val;
+}
+function countDown(elId, from, to, t){
+  const val = Math.round(from - (from-to)*ease.out3(Math.min(t,1)));
+  const el = document.getElementById(elId);
+  if(el) el.textContent = val;
+}
+
+// ─── BUILD TIMELINE ────────────────────────────────────────
+
+// [0–0.3] Header fade in
+addTween(0.1, 0.6, t => {
+  setEl('header', {opacity: ease.out3(t)});
+});
+
+// [0–1] Init screen fade-in
+addTween(0.2, 0.7, t => {
+  const p = ease.out3(t);
+  setEl('initScreen', {opacity: p, transform: `translateY(${20*(1-p)}px)`});
+});
+// [0.7–1] Init screen fade-out
+addTween(0.7, 1.05, t => {
+  setEl('initScreen', {opacity: 1 - ease.in3(t), transform: `translateY(${-10*ease.in3(t)}px)`});
+});
+
+// Metrics stage appears at 0.9s
+addTween(0.9, 1.2, t => {
+  setEl('metricsStage', {opacity: ease.out3(t)});
+});
+
+// ── SPEED PANEL [1–3s] ──
+addTween(1.0, 1.4, t => {
+  const p = ease.out3(t);
+  setEl('panelSpeed', {opacity: p, transform: `translateX(${-30*(1-p)}px)`});
+});
+addTween(1.1, 1.5, t => setEl('lbl1', {opacity: ease.out3(t)}));
+addTween(1.2, 2.5, t => {
+  setEl('metSpeed', {opacity: 1});
+  countUp('cntSpeed', 1, 10, t);
+  if(t > 0.85) setEl('metSpeed', {textShadow:`0 0 ${60*t}px rgba(255,149,0,0.45),0 0 ${120*t}px rgba(255,149,0,0.15)`});
+});
+addTween(1.5, 1.9, t => setEl('nm1', {opacity: ease.out3(t)}));
+addTween(1.7, 2.1, t => setEl('sub1', {opacity: ease.out3(t)}));
+addTween(1.4, 3.0, t => {
+  setEl('cw1', {opacity: ease.out3(t)});
+  drawSpeedChart(ease.out3(t));
+});
+
+// ── COST PANEL [3–5s] ──
+addTween(3.0, 3.4, t => {
+  const p = ease.out3(t);
+  setEl('panelCost', {opacity: p, transform: `translateY(${25*(1-p)}px)`});
+});
+addTween(3.1, 3.5, t => setEl('lbl2', {opacity: ease.out3(t)}));
+addTween(3.2, 4.8, t => {
+  setEl('metCost', {opacity: 1});
+  countUp('cntCost', 0, 85, t);
+  if(t > 0.7){
+    const g = ease.out3((t-0.7)/0.3);
+    setEl('metCost', {textShadow:`0 0 ${40*g}px rgba(255,149,0,0.35)`});
+  }
+});
+addTween(3.5, 3.9, t => setEl('nm2', {opacity: ease.out3(t)}));
+addTween(3.7, 4.1, t => setEl('sub2', {opacity: ease.out3(t)}));
+addTween(3.3, 5.0, t => {
+  setEl('cw2', {opacity: ease.out3(t)});
+  drawCostChart(ease.out3(t));
+});
+
+// ── SCALE PANEL [5–7s] ──
+addTween(5.0, 5.4, t => {
+  const p = ease.spring(Math.min(t*1.5,1));
+  setEl('panelScale', {opacity: ease.out3(t), transform: `translateX(${30*(1-ease.out3(t))}px)`});
+});
+addTween(5.1, 5.5, t => setEl('lbl3', {opacity: ease.out3(t)}));
+addTween(5.2, 5.7, t => {
+  setEl('metScale', {opacity: ease.spring(Math.min(t,1))});
+  const pulse = 1 + 0.05*Math.sin(Date.now()/600);
+  if(t > 0.5){
+    setEl('metScale', {
+      textShadow:`0 0 ${50*t}px rgba(255,149,0,0.5),0 0 ${100*t}px rgba(255,149,0,0.2)`,
+      transform: `scale(${pulse})`
+    });
+  }
+});
+addTween(5.5, 5.9, t => setEl('nm3', {opacity: ease.out3(t)}));
+addTween(5.7, 6.1, t => setEl('sub3', {opacity: ease.out3(t)}));
+addTween(5.3, 7.0, t => {
+  setEl('cw4', {opacity: ease.out3(t)});
+  drawScaleChart(ease.out3(t));
+});
+
+// ── COMPARISON STRIP [6–8s] ──
+addTween(6.0, 6.4, t => {
+  setEl('compStrip', {opacity: ease.out3(t)});
+});
+
+// Grey bars appear first
+addTween(6.2, 6.8, t => {
+  const p = ease.out3(t);
+  document.getElementById('sg1').style.width = (50*p)+'%';
+  document.getElementById('sg2').style.width = (65*p)+'%';
+  document.getElementById('sg3').style.width = (45*p)+'%';
+});
+
+// Gold bars surge
+addTween(6.6, 7.4, t => {
+  const p = ease.spring(Math.min(t,1));
+  document.getElementById('gg1').style.width = (95*p)+'%';
+  document.getElementById('gg2').style.width = (20*p)+'%';
+  document.getElementById('gg3').style.width = (98*p)+'%';
+});
+
+// Labels appear
+addTween(7.0, 7.5, t => {
+  const p = ease.out3(t);
+  setEl('st1', {opacity: p}); setEl('st2', {opacity: p}); setEl('st3', {opacity: p});
+});
+
+// ── FINAL MSG [8–9s] ──
+addTween(7.8, 8.0, t => {
+  // Fade metrics out
+  const p = ease.in3(t);
+  setEl('metricsStage', {opacity: 1-p});
+  setEl('compStrip', {opacity: 1-p});
+});
+addTween(8.0, 8.5, t => {
+  setEl('finalMsg', {opacity: ease.out3(t)});
+});
+addTween(8.1, 8.6, t => {
+  setEl('fl1', {opacity: ease.out3(t), transform:`translateY(${20*(1-ease.out3(t))}px)`});
+});
+addTween(8.3, 8.8, t => {
+  setEl('fl2', {opacity: ease.out3(t), transform:`translateY(${20*(1-ease.out3(t))}px)`});
+});
+addTween(8.5, 9.0, t => {
+  setEl('fr', {opacity: ease.out3(t)});
+});
+
+// ── BRAND LOCK [9–10s] ──
+addTween(8.8, 9.0, t => {
+  setEl('finalMsg', {opacity: 1-ease.in3(t)});
+});
+addTween(9.0, 9.6, t => {
+  const p = ease.out3(t);
+  setEl('brandLock', {opacity: p, transform:`translate(-50%,-50%) scale(${0.92+0.08*p})`});
+});
+// Breathing glow after 9.5s
+addTween(9.5, 20.0, t => {
+  const pulse = 0.75 + 0.25*Math.sin(Date.now()/800);
+  setEl('brandLock', {opacity: pulse < 0.75 ? 0.75 : pulse, transform:`translate(-50%,-50%) scale(1)`});
+});
+
+// ─── LOOP CHARTS AFTER INIT ────────────────────────────────
+// Keep charts animating for infinity symbol breathing
+addTween(5.2, 50, t => {
+  const el = document.getElementById('metScale');
+  if(!el) return;
+  const pulse = 1 + 0.04*Math.sin(Date.now()/700);
+  el.style.transform = `scale(${pulse})`;
+});
+
+// ─── MOUSE ────────────────────────────────────────────────
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX; mouseY = e.clientY;
+  cursorX = e.clientX; cursorY = e.clientY;
+  const cursor = document.getElementById('cursor');
+  cursor.style.left = e.clientX+'px'; cursor.style.top = e.clientY+'px';
+});
+
+// ─── START ────────────────────────────────────────────────
+window.addEventListener('resize', resizeCanvases);
+raf = requestAnimationFrame(tick);
+
+// Replay loop every ~12s
+function scheduleReplay(){
+  setTimeout(() => {
+    startTime = null;
+    // Reset all elements
+    ['header','initScreen','metricsStage','compStrip','finalMsg','brandLock',
+     'panelSpeed','panelCost','panelScale','metSpeed','metCost','metScale',
+     'lbl1','lbl2','lbl3','nm1','nm2','nm3','sub1','sub2','sub3',
+     'cw1','cw2','cw4','fl1','fl2','fr'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el){
+        el.style.opacity='0';
+        // Preserve the centered transform for brandLock on reset
+        el.style.transform = (id === 'brandLock') ? 'translate(-50%,-50%)' : '';
+      }
+    });
+    ['sg1','sg2','sg3','gg1','gg2','gg3'].forEach(id => {
+      const el=document.getElementById(id); if(el) el.style.width='0';
+    });
+    ['st1','st2','st3'].forEach(id => {
+      const el=document.getElementById(id); if(el) el.style.opacity='0';
+    });
+    document.getElementById('cntSpeed').textContent='1';
+    document.getElementById('cntCost').textContent='0';
+    // Reset timeline
+    for(const tw of timeline) tw.done = false;
+    scheduleReplay();
+  }, 13000);
+}
+scheduleReplay();
+
+})();
+</script>
+</body>
+</html>
